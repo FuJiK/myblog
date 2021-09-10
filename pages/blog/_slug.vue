@@ -11,6 +11,7 @@
       <div class="overlay"></div>
       <div class="absolute top-32 left-32 text-white">
         <NuxtLink to="/"><Logo /></NuxtLink>
+        <!-- <NuxtLink to="/myblog/"><Logo /></NuxtLink> -->
         <div class="mt-16 -mb-3 flex uppercase text-sm">
           <p class="mr-3">
             {{ formatDate(article.updatedAt) }}
