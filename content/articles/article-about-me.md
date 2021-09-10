@@ -14,7 +14,6 @@ tags:
 ## There is just so much to write about me. Where do I start?
 
 ![buns](/myblog/img/buns.jpg "buns")
-<img src="/img/buns.jpg">
 <!-- ![buns](\images\buns.jpg "buns") -->
 
 コードブロック
