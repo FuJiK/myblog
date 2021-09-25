@@ -23,3 +23,21 @@ $ yarn generate
 # view a production version of your app
 $ yarn start
 ```
+
+'''bash
+以下でも実行可能
+# npm installでパッケージをインストール
+$ npm install
+
+# nuxt コマンドを実行
+$ npm run dev 
+
+# nuxt build コマンドを実行
+$ npm run build 
+
+# nuxt start コマンドを実行
+$ npm run start
+
+# nuxt generate コマンドを実行
+$ npm run generate
+'''

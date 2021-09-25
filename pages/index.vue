@@ -57,11 +57,13 @@
           >Debbie O'Brien</a
         >
         at NuxtJS. See the
-        <a
+        <!-- <a
           href="https://nuxtjs.org/blog/creating-blog-with-nuxt-content"
           class="font-bold hover:underline"
-          >tutorial</a
-        >
+          > -->
+          tutorial
+          <!-- </a
+        > -->
         for how to build it.
       </p>
     </footer>

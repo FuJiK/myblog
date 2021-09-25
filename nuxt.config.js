@@ -9,7 +9,7 @@ export default {
    ** See https://nuxtjs.org/api/configuration-head
    */
    router: {
-    base: '/myblog/'
+    // base: '/myblog/'
   },
   head: {
     title: process.env.npm_package_name || '',
