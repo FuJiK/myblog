@@ -10,7 +10,7 @@ export default {
    */
    router: {
     //  Github pages にデプロイ時にはコメントアウト
-    // base: '/myblog/'
+    base: '/myblog/'
   },
   head: {
     title: process.env.npm_package_name || '',
