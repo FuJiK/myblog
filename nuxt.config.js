@@ -9,7 +9,8 @@ export default {
    ** See https://nuxtjs.org/api/configuration-head
    */
    router: {
-    base: '/myblog/'
+    //  Github pages にデプロイ時にはコメントアウト
+    // base: '/myblog/'
   },
   head: {
     title: process.env.npm_package_name || '',
