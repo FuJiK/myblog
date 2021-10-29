@@ -25,4 +25,6 @@ pages/
         index.vue
 ```
 
-<script language="javascript" src="//ad.jp.ap.valuecommerce.com/servlet/jsbanner?sid=3620897&pid=887445427"></script><noscript><a href="//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3620897&pid=887445427" rel="nofollow"><img src="//ad.jp.ap.valuecommerce.com/servlet/gifbanner?sid=3620897&pid=887445427" border="0"></a></noscript>
+<amp-ad width='468' height='60' type='valuecommerce' data-sid='3620897' data-pid='887445427'></amp-ad>
+
+<a href="//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3620897&pid=887445427" rel="nofollow"><img src="//ad.jp.ap.valuecommerce.com/servlet/gifbanner?sid=3620897&pid=887445427" border="0"></a>
