@@ -4,6 +4,7 @@
       v-model="searchQuery"
       type="search"
       autocomplete="off"
+      {{– 記事検索文字の入力 –}}
       placeholder="Search Articles"
       class="block w-full pl-10 pr-3 py-2 truncate leading-5 placeholder-gray-500 border border-gray-500 text-gray-700 focus:border-gray-300 rounded-md focus:outline-none focus:bg-white bg-white"
     />
