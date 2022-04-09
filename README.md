@@ -41,3 +41,10 @@ $ npm run start
 # nuxt generate コマンドを実行
 $ npm run generate
 '''
+
+# git について
+$ git add .
+$ git commit -m "コメント"
+$ git push
+
+これやれば、ブログはgithub Actions が２分ほどで、いい感じにブランチにCDしてくれる。

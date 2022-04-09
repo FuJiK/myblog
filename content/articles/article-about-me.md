@@ -6,16 +6,14 @@ alt: nice image
 author: 
   name: Fujikeeeeeeeeeeeeeeeeeeeeeeeen
   bio: All about Fujikeeeen and what he does and where he works
-  img: https://images.unsplash.com/photo-1631143329538-e801b4fb046d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80
+  img: 
 tags: 
   - web development
   - buns
 ---
 ## There is just so much to write about me. Where do I start?
 
-![buns](/myblog/img/buns.jpg "buns")
 ![buns](/img/buns.jpg "buns")
-<!-- ![buns](\images\buns.jpg "buns") -->
 
 コードブロック
 ```bash
