@@ -5,8 +5,8 @@ img: https://images.unsplash.com/photo-1588514727390-91fd5ebaef81?ixlib=rb-1.2.1
 alt: article 7
 author: 
   name: Fujikeeeeeeeeeeeeeeeeeeeeeeeen
-  bio: All about Maria and where she works and what she does
-  img: https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2551&q=80
+  bio: All about Fujikeeeen and what he does and where he works
+  img: /img/profile.JPG
 tags: 
   - web development
 ---

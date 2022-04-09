@@ -5,8 +5,8 @@ img: https://images.unsplash.com/photo-1588512285341-c481fb6de19d?ixlib=rb-1.2.1
 alt: Hello i'm article 9
 author: 
   name: Fujikeeeeeeeeeeeeeeeeeeeeeeeen
-  bio: All about Alexandra and where she works and what she does
-  img: https://images.unsplash.com/photo-1506956191951-7a88da4435e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60
+  bio: All about Fujikeeeen and what he does and where he works
+  img: /img/profile.JPG
 tags: 
   - web development
 ---
