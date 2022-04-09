@@ -6,7 +6,7 @@ alt: nice image
 author: 
   name: Fujikeeeeeeeeeeeeeeeeeeeeeeeen
   bio: All about Fujikeeeen and what he does and where he works
-  img: /img/profile.jpg
+  img: /img/profile.JPG
 tags: 
   - web development
   - buns
@@ -14,6 +14,7 @@ tags:
 ## There is just so much to write about me. Where do I start?
 
 ![buns](/img/buns.jpg "buns")
+
 コードブロック
 ```bash
 pages/
