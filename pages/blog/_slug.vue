@@ -76,6 +76,7 @@
       </nav>
       <!-- content from markdown -->
       <nuxt-content :document="article" />
+      <AffiliateLinks />
       <!-- content author component -->
       <author :author="article.author" />
       <!-- prevNext component -->
