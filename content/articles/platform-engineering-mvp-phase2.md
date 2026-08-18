@@ -171,7 +171,8 @@ Azure App Service もアリ。社内標準が Azure なら `:platform :azure` �
 
 ローカル Docker は `terraform state` が手元で済む。  
 クラウドは **remote state（S3 + DynamoDB / Azure Storage）** が現実的。  
-Phase 2 の README に bootstrap 手順が必要になる。
+Phase 2 の README に bootstrap 手順が必要になる。  
+→ 手順の詳細は別記事: [Phase 2 bootstrap — Terraform remote state を先に用意する](/blog/platform-engineering-mvp-phase2-bootstrap)
 
 ### 認証
 
@@ -223,6 +224,7 @@ Phase 1 で「存在しない操作は存在しない」を固めたので、Pha
 
 ## 関連リンク
 
+- [Phase 2 bootstrap 手順](/blog/platform-engineering-mvp-phase2-bootstrap)
 - [Phase 1 記事](/blog/platform-engineering-mvp)
 - リポジトリ: https://github.com/FuJiK/platform-engineering-mvp
 - Phase 1 journal: https://github.com/FuJiK/platform-engineering-mvp/blob/main/docs/phase1-journal.md
