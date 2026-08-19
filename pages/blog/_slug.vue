@@ -19,7 +19,9 @@
           <span class="mr-3">•</span>
           <p>{{ article.author.name }}</p>
         </div>
-        <h1 class="text-6xl font-bold">{{ article.title }}</h1>
+        <p class="text-6xl font-bold" aria-hidden="true">
+          {{ article.title }}
+        </p>
         <span v-for="(tag, id) in article.tags" :key="id">
           <NuxtLink :to="`/blog/tag/${tags[tag].slug}`">
             <span
@@ -85,6 +87,17 @@
   </article>
 </template>
 <script>
+const SITE_NAME = 'The Shibsters'
+const SITE_URL = 'https://www.theshibsters.com'
+
+function toAbsoluteUrl(value) {
+  if (!value) {
+    return SITE_URL
+  }
+
+  return new URL(value, SITE_URL).href
+}
+
 export default {
   async asyncData({ $content, params }) {
     const article = await $content('articles', params.slug).fetch()
@@ -103,6 +116,129 @@ export default {
       tags,
       prev,
       next
+    }
+  },
+  head() {
+    const article = this.article
+    const canonicalUrl = toAbsoluteUrl(this.$route.path)
+    const imageUrl = toAbsoluteUrl(article.img)
+    const author = article.author || {}
+    const tags = article.tags || []
+    const publishedTime = article.createdAt
+    const modifiedTime = article.updatedAt
+    const meta = [
+      {
+        hid: 'description',
+        name: 'description',
+        content: article.description
+      },
+      { hid: 'robots', name: 'robots', content: 'index,follow' },
+      { hid: 'og:type', property: 'og:type', content: 'article' },
+      { hid: 'og:title', property: 'og:title', content: article.title },
+      {
+        hid: 'og:description',
+        property: 'og:description',
+        content: article.description
+      },
+      { hid: 'og:url', property: 'og:url', content: canonicalUrl },
+      { hid: 'og:image', property: 'og:image', content: imageUrl },
+      {
+        hid: 'og:image:alt',
+        property: 'og:image:alt',
+        content: article.alt || article.title
+      },
+      {
+        hid: 'og:site_name',
+        property: 'og:site_name',
+        content: SITE_NAME
+      },
+      { hid: 'og:locale', property: 'og:locale', content: 'ja_JP' },
+      {
+        hid: 'twitter:card',
+        name: 'twitter:card',
+        content: 'summary_large_image'
+      },
+      {
+        hid: 'twitter:title',
+        name: 'twitter:title',
+        content: article.title
+      },
+      {
+        hid: 'twitter:description',
+        name: 'twitter:description',
+        content: article.description
+      },
+      {
+        hid: 'twitter:image',
+        name: 'twitter:image',
+        content: imageUrl
+      },
+      {
+        hid: 'twitter:image:alt',
+        name: 'twitter:image:alt',
+        content: article.alt || article.title
+      }
+    ]
+
+    if (publishedTime) {
+      meta.push({
+        hid: 'article:published_time',
+        property: 'article:published_time',
+        content: publishedTime
+      })
+    }
+
+    if (modifiedTime) {
+      meta.push({
+        hid: 'article:modified_time',
+        property: 'article:modified_time',
+        content: modifiedTime
+      })
+    }
+
+    tags.forEach((tag, index) => {
+      meta.push({
+        hid: `article:tag:${index}`,
+        property: 'article:tag',
+        content: tag
+      })
+    })
+
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      headline: article.title,
+      description: article.description,
+      image: [imageUrl],
+      datePublished: publishedTime,
+      dateModified: modifiedTime,
+      inLanguage: 'ja-JP',
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': canonicalUrl
+      },
+      author: {
+        '@type': 'Person',
+        name: author.name || 'Fujikeeeen'
+      },
+      publisher: {
+        '@type': 'Person',
+        name: author.name || 'Fujikeeeen'
+      },
+      keywords: tags.join(', ')
+    }
+
+    return {
+      title: article.title,
+      link: [{ hid: 'canonical', rel: 'canonical', href: canonicalUrl }],
+      meta,
+      script: [
+        {
+          hid: 'article-structured-data',
+          type: 'application/ld+json',
+          json: structuredData
+        }
+      ]
     }
   },
   methods: {

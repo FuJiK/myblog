@@ -1,3 +1,7 @@
+const siteName = 'The Shibsters'
+const siteDescription =
+  'Platform Engineering、SRE、IaC、Clojure、MCPの実装と検証を記録する技術ブログ'
+
 export default {
   /*
    ** Nuxt target
@@ -8,24 +12,34 @@ export default {
    ** Headers of the page
    ** See https://nuxtjs.org/api/configuration-head
    */
-   router: {
+  router: {
     //  Github pages にデプロイ時にはコメントする
     // base: '/myblog/'
   },
   head: {
-    title: process.env.npm_package_name || '',
+    htmlAttrs: {
+      lang: 'ja'
+    },
+    title: siteName,
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
         hid: 'description',
         name: 'description',
-        content: process.env.npm_package_description || ''
+        content: siteDescription
+      },
+      {
+        hid: 'og:site_name',
+        property: 'og:site_name',
+        content: siteName
+      },
+      {
+        hid: 'og:locale',
+        property: 'og:locale',
+        content: 'ja_JP'
       }
     ],
-    base: {
-      href: 'router.base'
-    },
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   /*
