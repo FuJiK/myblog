@@ -3,6 +3,9 @@ const siteDescription =
   'Platform Engineering、SRE、IaC、Clojure、MCPの実装と検証を記録する技術ブログ'
 
 export default {
+  env: {
+    GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID || ''
+  },
   /*
    ** Nuxt target
    ** See https://nuxtjs.org/api/configuration-target
@@ -50,7 +53,7 @@ export default {
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: [],
+  plugins: [{ src: '~/plugins/gtag.client.js', mode: 'client' }],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components
