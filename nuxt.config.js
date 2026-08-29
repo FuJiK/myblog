@@ -1,10 +1,13 @@
+import analyticsConfig from './analytics.config.json'
+
 const siteName = 'The Shibsters'
 const siteDescription =
   'Platform Engineering、SRE、IaC、Clojure、MCPの実装と検証を記録する技術ブログ'
 
 export default {
   env: {
-    GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID || ''
+    GOOGLE_ANALYTICS_ID:
+      process.env.GOOGLE_ANALYTICS_ID || analyticsConfig.id || ''
   },
   /*
    ** Nuxt target

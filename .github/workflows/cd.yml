@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   cd:
@@ -30,13 +31,27 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Resolve Google Analytics ID
+        id: ga
+        run: |
+          GA_ID="${{ secrets.GOOGLE_ANALYTICS_ID }}"
+          if [ -z "$GA_ID" ]; then
+            GA_ID=$(node -p "require('./analytics.config.json').id || ''")
+          fi
+          echo "id=$GA_ID" >> "$GITHUB_OUTPUT"
+          if [ -z "$GA_ID" ]; then
+            echo "::warning::Google Analytics ID is not set. Set GOOGLE_ANALYTICS_ID secret or analytics.config.json id."
+          else
+            echo "Google Analytics ID is configured."
+          fi
+
       - name: Generate
         run: yarn run generate
         env:
-          GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
+          GOOGLE_ANALYTICS_ID: ${{ steps.ga.outputs.id }}
 
       - name: Deploy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
