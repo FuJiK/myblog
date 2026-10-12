@@ -141,8 +141,8 @@ chmod 700 "\$XDG_RUNTIME_DIR" 2>/dev/null || true
 if [[ -z "\${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
   for bus_file in "\$HOME/.dbus/session-bus/"*; do
     if [[ -f "\$bus_file" ]]; then
-      DBUS_SESSION_BUS_ADDRESS="\$(awk -F= '/^DBUS_SESSION_BUS_ADDRESS=/{print substr(\$0, index(\$0,\$2)); exit}' "\$bus_file" | tr -d \"'\")"
-      export DBUS_SESSION_BUS_ADDRESS
+      # shellcheck disable=SC1090
+      . "\$bus_file"
       break
     fi
   done
