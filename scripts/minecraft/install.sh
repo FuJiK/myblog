@@ -27,6 +27,7 @@ Environment:
   PRISM_VERSION          Prism Launcher version
   PRISM_LAUNCHER_URL     Prism portable tarball URL
   MINECRAFT_LAUNCHER_URL Official bootstrap tarball URL
+  MINECRAFT_SOFTWARE_GL  Set to 1 to force CPU rendering (llvmpipe/VMs)
 EOF
 }
 
@@ -113,8 +114,17 @@ export GDK_BACKEND="${GDK_BACKEND:-x11}"
 export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
 export ELECTRON_OZONE_PLATFORM_HINT="${ELECTRON_OZONE_PLATFORM_HINT:-x11}"
 export __GLX_VENDOR_LIBRARY_NAME="${__GLX_VENDOR_LIBRARY_NAME:-mesa}"
-export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
 export TMPDIR="${TMPDIR:-/tmp}"
+# Hardware Mesa is the default (Haswell iGPU, etc.). Software GL is only
+# for VMs/llvmpipe, or when MINECRAFT_SOFTWARE_GL=1 is set explicitly.
+if [[ "${MINECRAFT_SOFTWARE_GL:-}" == "1" ]]; then
+  export LIBGL_ALWAYS_SOFTWARE=1
+elif [[ -z "${LIBGL_ALWAYS_SOFTWARE:-}" ]] && command -v glxinfo >/dev/null 2>&1; then
+  renderer="$(glxinfo -B 2>/dev/null | awk -F: '/Device:/{print $2; exit}' || true)"
+  if [[ "$renderer" == *llvmpipe* || "$renderer" == *softpipe* || "$renderer" == *swrast* ]]; then
+    export LIBGL_ALWAYS_SOFTWARE=1
+  fi
+fi
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.cache/xdg-runtime}"
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
@@ -195,14 +205,16 @@ chmod +x "$OFFICIAL_DIR/minecraft-launcher"
   write_session_wrapper_prefix
   cat <<EOF
 cd "${OFFICIAL_DIR}"
-exec "${OFFICIAL_DIR}/minecraft-launcher" \\
-  --no-sandbox \\
-  --disable-setuid-sandbox \\
-  --disable-dev-shm-usage \\
-  --use-gl=angle \\
-  --use-angle=swiftshader-webgl \\
-  --ozone-platform=x11 \\
-  "\$@"
+cef_args=(
+  --no-sandbox
+  --disable-setuid-sandbox
+  --disable-dev-shm-usage
+  --ozone-platform=x11
+)
+if [[ "\${LIBGL_ALWAYS_SOFTWARE:-}" == "1" ]]; then
+  cef_args+=(--use-gl=angle --use-angle=swiftshader-webgl)
+fi
+exec "${OFFICIAL_DIR}/minecraft-launcher" "\${cef_args[@]}" "\$@"
 EOF
 } > "$OFFICIAL_WRAPPER"
 chmod +x "$OFFICIAL_WRAPPER"
