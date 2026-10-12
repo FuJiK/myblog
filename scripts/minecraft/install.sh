@@ -68,6 +68,8 @@ install_runtime_packages() {
     libxrandr2
     libxtst6
     libgdk-pixbuf-2.0-0
+    libopengl0
+    libgl1
     xdg-utils
     mesa-utils
     wget
