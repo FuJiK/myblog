@@ -100,7 +100,9 @@ export default {
    */
   modules: [
     // Doc: https://github.com/nuxt/content
-    '@nuxt/content'
+    '@nuxt/content',
+    // Restore createdAt/updatedAt from git; CI checkout mtimes are identical
+    '~/modules/content-git-dates'
   ],
   /*
    ** Content module configuration
