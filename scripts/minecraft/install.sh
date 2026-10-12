@@ -127,11 +127,36 @@ if [[ -z "\${DISPLAY:-}" && -z "\${WAYLAND_DISPLAY:-}" ]]; then
   exit 1
 fi
 
-export __GLX_VENDOR_LIBRARY_NAME="\${__GLX_VENDOR_LIBRARY_NAME:-mesa}"
+export DISPLAY="\${DISPLAY:-:1}"
+export XDG_SESSION_TYPE="\${XDG_SESSION_TYPE:-x11}"
 export GDK_BACKEND="\${GDK_BACKEND:-x11}"
 export ELECTRON_OZONE_PLATFORM_HINT="\${ELECTRON_OZONE_PLATFORM_HINT:-x11}"
+export __GLX_VENDOR_LIBRARY_NAME="\${__GLX_VENDOR_LIBRARY_NAME:-mesa}"
+export LIBGL_ALWAYS_SOFTWARE="\${LIBGL_ALWAYS_SOFTWARE:-1}"
+export TMPDIR="\${TMPDIR:-/tmp}"
+export XDG_RUNTIME_DIR="\${XDG_RUNTIME_DIR:-${HOME}/.cache/xdg-runtime}"
+mkdir -p "\$XDG_RUNTIME_DIR"
+chmod 700 "\$XDG_RUNTIME_DIR" 2>/dev/null || true
 
-exec "${INSTALL_DIR}/minecraft-launcher" "\$@"
+if [[ -z "\${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+  for bus_file in "\$HOME/.dbus/session-bus/"*; do
+    if [[ -f "\$bus_file" ]]; then
+      DBUS_SESSION_BUS_ADDRESS="\$(awk -F= '/^DBUS_SESSION_BUS_ADDRESS=/{print substr(\$0, index(\$0,\$2)); exit}' "\$bus_file" | tr -d \"'\")"
+      export DBUS_SESSION_BUS_ADDRESS
+      break
+    fi
+  done
+fi
+
+cd "${INSTALL_DIR}"
+exec "${INSTALL_DIR}/minecraft-launcher" \\
+  --no-sandbox \\
+  --disable-setuid-sandbox \\
+  --disable-dev-shm-usage \\
+  --use-gl=angle \\
+  --use-angle=swiftshader-webgl \\
+  --ozone-platform=x11 \\
+  "\$@"
 EOF
 chmod +x "$WRAPPER"
 
