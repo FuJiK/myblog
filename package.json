@@ -13,7 +13,8 @@
     "lint": "npm run lint:js && npm run lint:style",
     "deploy": "push-dir --dir=dist --branch=gh-pages --cleanup",
     "minecraft": "bash scripts/minecraft/run.sh",
-    "minecraft:install": "bash scripts/minecraft/install.sh"
+    "minecraft:install": "bash scripts/minecraft/install.sh",
+    "minecraft:official": "bash scripts/minecraft/run-official.sh"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint",

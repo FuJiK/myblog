@@ -34,23 +34,29 @@ Java は移行スクリプトで `openjdk-21-jdk` まで入っている。ゲー
 
 ## このリポジトリで起動する
 
-ブログ用リポジトリに、公式 tar.gz を入れて Mesa 向け環境変数を付けるスクリプトを置いた。  
-ローカル（Linux x86_64）ではこれでランチャーが起動する。
+ローカル Linux x86_64 では、リポジトリからランチャーを入れて起動できる。
 
 ```bash
 yarn
 yarn minecraft
 ```
 
-npm なら:
+`yarn minecraft` は **Prism Launcher**（Qt）を開く。公式 CEF ランチャーは GPU のない環境でウィンドウが出ないことがあるので、ローカル起動の既定はこちら。
+
+公式 bootstrap も一緒に入る。Ubuntu 26.04 の `.deb` 回避と同じ経路を試すなら:
 
 ```bash
-npm install
-npm run minecraft
+yarn minecraft:official
 ```
 
-初回だけ `scripts/minecraft/install.sh` が公式 tarball を `~/.local/opt/minecraft-launcher` に展開し、ラッパーを `~/.local/bin/minecraft` に書く。  
-ラッパー側で `__GLX_VENDOR_LIBRARY_NAME=mesa` と `GDK_BACKEND=x11` を付けるので、Intel + Mesa でもランチャーが落ちにくい。
+初回の `scripts/minecraft/install.sh` が置くもの:
+
+| パス | 中身 |
+|---|---|
+| `~/.local/opt/prismlauncher` | Prism Launcher portable |
+| `~/.local/bin/minecraft` | `yarn minecraft` 用ラッパー |
+| `~/.local/opt/minecraft-launcher` | 公式 tar.gz bootstrap |
+| `~/.local/bin/minecraft-official` | Mesa / CEF flags 付き公式ラッパー |
 
 ゲームへのログインは Microsoft アカウントが必要。スクリプトはランチャーまで。
 
@@ -222,7 +228,7 @@ MacBookPro11,1 はメモリ 8GB。GNOME を載せるとゲームに 4GB は渡�
 Ubuntu 26.04 で Minecraft が起動しないとき、ゲーム本体より先にランチャーの入れ方を疑う。
 
 1. 公式 `.deb` は `libgdk-pixbuf2.0-0` という**もう無いパッケージ名**に依存している
-2. `yarn minecraft`（中身は公式 tar.gz + Mesa ラッパー）で起動するのが最短
+2. `yarn minecraft`（Prism Launcher）で起動するのが最短。公式 `.deb` 回避だけ見るなら `yarn minecraft:official`
 3. Intel + Mesa なら `__GLX_VENDOR_LIBRARY_NAME=mesa` を足す
 4. 8GB 機は `-Xmx2G` までに抑える
 

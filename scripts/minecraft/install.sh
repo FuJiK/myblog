@@ -1,26 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LAUNCHER_URL="${MINECRAFT_LAUNCHER_URL:-https://launcher.mojang.com/download/Minecraft.tar.gz}"
+OFFICIAL_URL="${MINECRAFT_LAUNCHER_URL:-https://launcher.mojang.com/download/Minecraft.tar.gz}"
+PRISM_VERSION="${PRISM_VERSION:-11.1.1}"
+PRISM_URL="${PRISM_LAUNCHER_URL:-https://github.com/PrismLauncher/PrismLauncher/releases/download/${PRISM_VERSION}/PrismLauncher-Linux-Qt6-Portable-${PRISM_VERSION}.tar.gz}"
 PREFIX="${MINECRAFT_PREFIX:-$HOME/.local}"
-INSTALL_DIR="${PREFIX}/opt/minecraft-launcher"
+OFFICIAL_DIR="${PREFIX}/opt/minecraft-launcher"
+PRISM_DIR="${PREFIX}/opt/prismlauncher"
 BIN_DIR="${PREFIX}/bin"
-WRAPPER="${BIN_DIR}/minecraft"
+OFFICIAL_WRAPPER="${BIN_DIR}/minecraft-official"
+PRISM_WRAPPER="${BIN_DIR}/minecraft"
 DESKTOP_DIR="${HOME}/.local/share/applications"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/minecraft-launcher"
-TARBALL="${CACHE_DIR}/Minecraft.tar.gz"
 
 usage() {
   cat <<'EOF'
 Usage:
   ./scripts/minecraft/install.sh
 
-Downloads the official Minecraft Linux tarball (not the .deb) and
-installs a Mesa-friendly wrapper to ~/.local/bin/minecraft.
+Installs:
+  1. Prism Launcher (Qt, default `yarn minecraft`)
+  2. Official Minecraft tar.gz launcher (`yarn minecraft:official`)
 
 Environment:
-  MINECRAFT_PREFIX         Install prefix (default: ~/.local)
-  MINECRAFT_LAUNCHER_URL   Tarball URL
+  MINECRAFT_PREFIX       Install prefix (default: ~/.local)
+  PRISM_VERSION          Prism Launcher version
+  PRISM_LAUNCHER_URL     Prism portable tarball URL
+  MINECRAFT_LAUNCHER_URL Official bootstrap tarball URL
 EOF
 }
 
@@ -70,6 +76,7 @@ install_runtime_packages() {
     libgdk-pixbuf-2.0-0
     libopengl0
     libgl1
+    libopenal1
     xdg-utils
     mesa-utils
     wget
@@ -90,66 +97,105 @@ install_runtime_packages() {
   fi
 }
 
-echo "==> Installing Minecraft launcher runtime packages"
-install_runtime_packages
-
-echo "==> Downloading official Minecraft.tar.gz"
-mkdir -p "$CACHE_DIR" "$INSTALL_DIR" "$BIN_DIR" "$DESKTOP_DIR"
-curl -fL --retry 4 --retry-delay 4 -o "$TARBALL" "$LAUNCHER_URL"
-
-echo "==> Extracting to $INSTALL_DIR"
-rm -rf "${INSTALL_DIR}.tmp"
-mkdir -p "${INSTALL_DIR}.tmp"
-tar -xzf "$TARBALL" -C "${INSTALL_DIR}.tmp"
-
-if [[ -x "${INSTALL_DIR}.tmp/minecraft-launcher/minecraft-launcher" ]]; then
-  rm -rf "$INSTALL_DIR"
-  mv "${INSTALL_DIR}.tmp/minecraft-launcher" "$INSTALL_DIR"
-  rm -rf "${INSTALL_DIR}.tmp"
-elif [[ -x "${INSTALL_DIR}.tmp/minecraft-launcher" ]]; then
-  rm -rf "$INSTALL_DIR"
-  mv "${INSTALL_DIR}.tmp" "$INSTALL_DIR"
-else
-  echo "Unexpected tarball layout:" >&2
-  find "${INSTALL_DIR}.tmp" -maxdepth 2 -print >&2
-  exit 1
-fi
-
-chmod +x "$INSTALL_DIR/minecraft-launcher"
-
-echo "==> Writing Mesa/X11 wrapper to $WRAPPER"
-cat > "$WRAPPER" <<EOF
+write_session_wrapper_prefix() {
+  cat <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -z "\${DISPLAY:-}" && -z "\${WAYLAND_DISPLAY:-}" ]]; then
+if [[ -z "${DISPLAY:-}" && -z "${WAYLAND_DISPLAY:-}" ]]; then
   echo "No DISPLAY/WAYLAND_DISPLAY. Minecraft needs a graphical session." >&2
   exit 1
 fi
 
-export DISPLAY="\${DISPLAY:-:1}"
-export XDG_SESSION_TYPE="\${XDG_SESSION_TYPE:-x11}"
-export GDK_BACKEND="\${GDK_BACKEND:-x11}"
-export ELECTRON_OZONE_PLATFORM_HINT="\${ELECTRON_OZONE_PLATFORM_HINT:-x11}"
-export __GLX_VENDOR_LIBRARY_NAME="\${__GLX_VENDOR_LIBRARY_NAME:-mesa}"
-export LIBGL_ALWAYS_SOFTWARE="\${LIBGL_ALWAYS_SOFTWARE:-1}"
-export TMPDIR="\${TMPDIR:-/tmp}"
-export XDG_RUNTIME_DIR="\${XDG_RUNTIME_DIR:-${HOME}/.cache/xdg-runtime}"
-mkdir -p "\$XDG_RUNTIME_DIR"
-chmod 700 "\$XDG_RUNTIME_DIR" 2>/dev/null || true
+export DISPLAY="${DISPLAY:-:1}"
+export XDG_SESSION_TYPE="${XDG_SESSION_TYPE:-x11}"
+export GDK_BACKEND="${GDK_BACKEND:-x11}"
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+export ELECTRON_OZONE_PLATFORM_HINT="${ELECTRON_OZONE_PLATFORM_HINT:-x11}"
+export __GLX_VENDOR_LIBRARY_NAME="${__GLX_VENDOR_LIBRARY_NAME:-mesa}"
+export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
+export TMPDIR="${TMPDIR:-/tmp}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.cache/xdg-runtime}"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
 
-if [[ -z "\${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
-  for bus_file in "\$HOME/.dbus/session-bus/"*; do
-    if [[ -f "\$bus_file" ]]; then
+if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+  for bus_file in "$HOME/.dbus/session-bus/"*; do
+    if [[ -f "$bus_file" ]]; then
       # shellcheck disable=SC1090
-      . "\$bus_file"
+      . "$bus_file"
       break
     fi
   done
 fi
+EOF
+}
 
-cd "${INSTALL_DIR}"
-exec "${INSTALL_DIR}/minecraft-launcher" \\
+echo "==> Installing Minecraft launcher runtime packages"
+install_runtime_packages
+mkdir -p "$CACHE_DIR" "$BIN_DIR" "$DESKTOP_DIR"
+
+echo "==> Installing Prism Launcher ${PRISM_VERSION}"
+PRISM_TARBALL="${CACHE_DIR}/PrismLauncher-Linux-Qt6-Portable-${PRISM_VERSION}.tar.gz"
+curl -fL --retry 4 --retry-delay 4 -o "$PRISM_TARBALL" "$PRISM_URL"
+rm -rf "${PRISM_DIR}.tmp" "$PRISM_DIR"
+mkdir -p "${PRISM_DIR}.tmp"
+tar -xzf "$PRISM_TARBALL" -C "${PRISM_DIR}.tmp"
+if [[ -x "${PRISM_DIR}.tmp/PrismLauncher" ]]; then
+  mv "${PRISM_DIR}.tmp" "$PRISM_DIR"
+else
+  echo "Unexpected Prism tarball layout:" >&2
+  find "${PRISM_DIR}.tmp" -maxdepth 2 -print >&2
+  exit 1
+fi
+chmod +x "$PRISM_DIR/PrismLauncher" "$PRISM_DIR/bin/prismlauncher"
+
+{
+  write_session_wrapper_prefix
+  cat <<EOF
+cd "${PRISM_DIR}"
+exec "${PRISM_DIR}/PrismLauncher" "\$@"
+EOF
+} > "$PRISM_WRAPPER"
+chmod +x "$PRISM_WRAPPER"
+
+cat > "${DESKTOP_DIR}/prismlauncher.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Prism Launcher
+Comment=Minecraft launcher (local Linux)
+Exec=${PRISM_WRAPPER}
+Icon=org.prismlauncher.PrismLauncher
+Terminal=false
+Categories=Game;
+StartupNotify=true
+EOF
+
+echo "==> Installing official Minecraft.tar.gz bootstrap"
+OFFICIAL_TARBALL="${CACHE_DIR}/Minecraft.tar.gz"
+curl -fL --retry 4 --retry-delay 4 -o "$OFFICIAL_TARBALL" "$OFFICIAL_URL"
+rm -rf "${OFFICIAL_DIR}.tmp"
+mkdir -p "${OFFICIAL_DIR}.tmp"
+tar -xzf "$OFFICIAL_TARBALL" -C "${OFFICIAL_DIR}.tmp"
+if [[ -x "${OFFICIAL_DIR}.tmp/minecraft-launcher/minecraft-launcher" ]]; then
+  rm -rf "$OFFICIAL_DIR"
+  mv "${OFFICIAL_DIR}.tmp/minecraft-launcher" "$OFFICIAL_DIR"
+  rm -rf "${OFFICIAL_DIR}.tmp"
+elif [[ -x "${OFFICIAL_DIR}.tmp/minecraft-launcher" ]]; then
+  rm -rf "$OFFICIAL_DIR"
+  mv "${OFFICIAL_DIR}.tmp" "$OFFICIAL_DIR"
+else
+  echo "Unexpected official tarball layout:" >&2
+  find "${OFFICIAL_DIR}.tmp" -maxdepth 2 -print >&2
+  exit 1
+fi
+chmod +x "$OFFICIAL_DIR/minecraft-launcher"
+
+{
+  write_session_wrapper_prefix
+  cat <<EOF
+cd "${OFFICIAL_DIR}"
+exec "${OFFICIAL_DIR}/minecraft-launcher" \\
   --no-sandbox \\
   --disable-setuid-sandbox \\
   --disable-dev-shm-usage \\
@@ -158,14 +204,15 @@ exec "${INSTALL_DIR}/minecraft-launcher" \\
   --ozone-platform=x11 \\
   "\$@"
 EOF
-chmod +x "$WRAPPER"
+} > "$OFFICIAL_WRAPPER"
+chmod +x "$OFFICIAL_WRAPPER"
 
 cat > "${DESKTOP_DIR}/minecraft-launcher.desktop" <<EOF
 [Desktop Entry]
 Type=Application
-Name=Minecraft Launcher
-Comment=Official Minecraft Launcher (tar.gz, Mesa-friendly)
-Exec=${WRAPPER}
+Name=Minecraft Launcher (official)
+Comment=Official Minecraft Launcher (tar.gz)
+Exec=${OFFICIAL_WRAPPER}
 Icon=minecraft-launcher
 Terminal=false
 Categories=Game;
@@ -178,9 +225,11 @@ fi
 
 echo
 echo "Installed:"
-echo "  launcher: $INSTALL_DIR/minecraft-launcher"
-echo "  wrapper:  $WRAPPER"
+echo "  Prism:    $PRISM_DIR/PrismLauncher"
+echo "  Official: $OFFICIAL_DIR/minecraft-launcher"
 echo
 echo "Run:"
-echo "  yarn minecraft"
-echo "  $WRAPPER"
+echo "  yarn minecraft              # Prism Launcher (default)"
+echo "  yarn minecraft:official     # official Mojang bootstrap"
+echo "  $PRISM_WRAPPER"
+echo "  $OFFICIAL_WRAPPER"
