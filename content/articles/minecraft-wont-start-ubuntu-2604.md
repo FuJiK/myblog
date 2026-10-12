@@ -58,6 +58,8 @@ yarn minecraft:official
 | `~/.local/opt/minecraft-launcher` | 公式 tar.gz bootstrap |
 | `~/.local/bin/minecraft-official` | Mesa / CEF flags 付き公式ラッパー |
 
+ラッパーは `__GLX_VENDOR_LIBRARY_NAME=mesa` を付けるが、**GPU があるマシンではハードウェア描画のまま**。llvmpipe の VM か `MINECRAFT_SOFTWARE_GL=1` のときだけ CPU 描画に落とす。Haswell iGPU でソフトウェアラスタを強制するとゲームにならない。
+
 ゲームへのログインは Microsoft アカウントが必要。スクリプトはランチャーまで。
 
 ## 症状
