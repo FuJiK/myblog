@@ -32,6 +32,28 @@ OS: Ubuntu 26.04 LTS
 
 Java は移行スクリプトで `openjdk-21-jdk` まで入っている。ゲーム本体の話ではなく、**ランチャーの入れ方**の話。
 
+## このリポジトリで起動する
+
+ブログ用リポジトリに、公式 tar.gz を入れて Mesa 向け環境変数を付けるスクリプトを置いた。  
+ローカル（Linux x86_64）ではこれでランチャーが起動する。
+
+```bash
+yarn
+yarn minecraft
+```
+
+npm なら:
+
+```bash
+npm install
+npm run minecraft
+```
+
+初回だけ `scripts/minecraft/install.sh` が公式 tarball を `~/.local/opt/minecraft-launcher` に展開し、ラッパーを `~/.local/bin/minecraft` に書く。  
+ラッパー側で `__GLX_VENDOR_LIBRARY_NAME=mesa` と `GDK_BACKEND=x11` を付けるので、Intel + Mesa でもランチャーが落ちにくい。
+
+ゲームへのログインは Microsoft アカウントが必要。スクリプトはランチャーまで。
+
 ## 症状
 
 よくあるパターンはこれ。
@@ -75,6 +97,8 @@ Mojang 側のチケット:
 - [MCL-26603](https://bugs.mojang.com/browse/MCL/issues/MCL-26603) — `libgdk-pixbuf2.0-0` → `libgdk-pixbuf-2.0-0` のリネーム
 
 ## 回避策 1: 公式 tar.gz（おすすめ）
+
+手でやるなら同じことをする。このリポジトリでは `yarn minecraft` がこれを自動化している。
 
 Minecraft のダウンロードページには **Other Distributions** 用の tarball がある。  
 `.deb` の Depends を無視して、ランチャー本体だけ展開して起動する。
@@ -198,7 +222,7 @@ MacBookPro11,1 はメモリ 8GB。GNOME を載せるとゲームに 4GB は渡�
 Ubuntu 26.04 で Minecraft が起動しないとき、ゲーム本体より先にランチャーの入れ方を疑う。
 
 1. 公式 `.deb` は `libgdk-pixbuf2.0-0` という**もう無いパッケージ名**に依存している
-2. `https://launcher.mojang.com/download/Minecraft.tar.gz` を展開して起動するのが最短
+2. `yarn minecraft`（中身は公式 tar.gz + Mesa ラッパー）で起動するのが最短
 3. Intel + Mesa なら `__GLX_VENDOR_LIBRARY_NAME=mesa` を足す
 4. 8GB 機は `-Xmx2G` までに抑える
 

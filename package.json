@@ -11,7 +11,9 @@
     "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "lint:style": "stylelint **/*.{vue,css} --ignore-path .gitignore",
     "lint": "npm run lint:js && npm run lint:style",
-    "deploy": "push-dir --dir=dist --branch=gh-pages --cleanup"
+    "deploy": "push-dir --dir=dist --branch=gh-pages --cleanup",
+    "minecraft": "bash scripts/minecraft/run.sh",
+    "minecraft:install": "bash scripts/minecraft/install.sh"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint",
