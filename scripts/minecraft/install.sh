@@ -34,6 +34,12 @@ if [[ "$(uname -s)" != "Linux" || "$(uname -m)" != "x86_64" ]]; then
   exit 1
 fi
 
+is_apt_installable() {
+  local candidate
+  candidate="$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2; exit}')"
+  [[ -n "$candidate" && "$candidate" != "(none)" ]]
+}
+
 install_runtime_packages() {
   if ! command -v apt-get >/dev/null 2>&1; then
     return 0
@@ -72,7 +78,7 @@ install_runtime_packages() {
 
   sudo apt-get update -qq
   for pkg in "${candidates[@]}"; do
-    if apt-cache show "$pkg" >/dev/null 2>&1; then
+    if is_apt_installable "$pkg"; then
       available+=("$pkg")
     fi
   done
