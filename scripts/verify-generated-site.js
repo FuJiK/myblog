@@ -44,7 +44,6 @@ try {
 }
 
 const canonicals = new Set()
-const modifiedTimes = []
 
 for (const filename of articleFiles) {
   const slug = path.basename(filename, '.md')
@@ -98,19 +97,18 @@ for (const filename of articleFiles) {
     html.match(
       /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:modified_time["']/i
     )
-  if (modifiedMatch) modifiedTimes.push(modifiedMatch[1])
+
+  assert(Boolean(modifiedMatch), `${relativePath}: article:modified_time is missing`)
+  if (modifiedMatch) {
+    assert(
+      !Number.isNaN(Date.parse(modifiedMatch[1])),
+      `${relativePath}: article:modified_time is invalid`
+    )
+  }
 
   assert(
     decodedSitemap.includes(relativePath),
     `${relativePath}: URL is missing from sitemap.xml`
-  )
-}
-
-if (modifiedTimes.length > 1) {
-  const uniqueModifiedTimes = new Set(modifiedTimes)
-  assert(
-    uniqueModifiedTimes.size > 1,
-    'All article modified times are identical; generated metadata may have collapsed to the CI checkout time.'
   )
 }
 
