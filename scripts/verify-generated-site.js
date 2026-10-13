@@ -98,7 +98,10 @@ for (const filename of articleFiles) {
       /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:modified_time["']/i
     )
 
-  assert(Boolean(modifiedMatch), `${relativePath}: article:modified_time is missing`)
+  assert(
+    Boolean(modifiedMatch),
+    `${relativePath}: article:modified_time is missing`
+  )
   if (modifiedMatch) {
     assert(
       !Number.isNaN(Date.parse(modifiedMatch[1])),
