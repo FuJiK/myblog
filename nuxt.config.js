@@ -3,6 +3,18 @@ import analyticsConfig from './analytics.config.json'
 const siteName = 'The Shibsters'
 const siteDescription =
   'Platform Engineering、SRE、IaC、Clojure、MCPの実装と検証を記録する技術ブログ'
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
+  "form-action 'self'",
+  'upgrade-insecure-requests'
+].join('; ')
 
 export default {
   env: {
@@ -30,6 +42,16 @@ export default {
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      {
+        hid: 'csp',
+        'http-equiv': 'Content-Security-Policy',
+        content: contentSecurityPolicy
+      },
+      {
+        hid: 'referrer',
+        name: 'referrer',
+        content: 'strict-origin-when-cross-origin'
+      },
       {
         hid: 'description',
         name: 'description',
@@ -59,7 +81,7 @@ export default {
   plugins: [{ src: '~/plugins/gtag.client.js', mode: 'client' }],
   /*
    ** Auto import components
-   ** See https://nuxtjs.org/api/configuration-components
+   ** https://nuxtjs.org/api/configuration-components
    */
   components: true,
   /*
