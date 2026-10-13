@@ -35,6 +35,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Diagnose Nuxt CLI
+        run: |
+          node -p "require('./node_modules/nuxt/package.json').version"
+          node -p "JSON.stringify(require('./node_modules/nuxt/package.json').bin)"
+          ls -la node_modules/nuxt/bin node_modules/.bin/nuxt
+          sed -n '1,80p' node_modules/nuxt/bin/nuxt.js
+          node node_modules/nuxt/bin/nuxt.js --version
+          node -p "require.resolve('@nuxt/cli')"
+
       - name: Resolve Google Analytics ID
         id: ga
         run: |
