@@ -33,14 +33,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npm install --no-save --package-lock=false nuxt@2.18.1
-
-      - name: Diagnose Nuxt CLI
-        run: |
-          node -p "require('./node_modules/nuxt/package.json').version"
-          node node_modules/nuxt/bin/nuxt.js --version
+        run: npm ci
 
       - name: Resolve Google Analytics ID
         id: ga
