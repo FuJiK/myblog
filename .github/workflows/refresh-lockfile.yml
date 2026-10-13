@@ -6,18 +6,20 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   refresh-lockfile:
-    if: github.head_ref == 'fix/nuxt-generate-force-build'
+    if: github.head_ref == 'fix/nuxt-generate-force-build' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout PR branch
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -37,9 +39,16 @@ jobs:
         env:
           GOOGLE_ANALYTICS_ID: ''
 
-      - name: Upload refreshed lockfile
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: refreshed-package-lock
-          path: package-lock.json
-          if-no-files-found: error
+      - name: Commit verified lockfile
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add package-lock.json
+          if git diff --cached --quiet; then
+            echo 'package-lock.json is already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Refresh npm lockfile from verified dependency graph'
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${GITHUB_HEAD_REF}"
