@@ -19,7 +19,10 @@ function read(file) {
   return fs.readFileSync(file, 'utf8')
 }
 
-assert(fs.existsSync(distDir), 'dist directory does not exist. Run generate first.')
+assert(
+  fs.existsSync(distDir),
+  'dist directory does not exist. Run generate first.'
+)
 assert(fs.existsSync(sitemapPath), 'dist/sitemap.xml does not exist.')
 assert(fs.existsSync(articlesDir), 'content/articles directory does not exist.')
 
@@ -48,26 +51,38 @@ for (const filename of articleFiles) {
   const htmlPath = path.join(distDir, 'blog', slug, 'index.html')
   const relativePath = `/blog/${slug}`
 
-  assert(fs.existsSync(htmlPath), `Generated article page is missing: ${relativePath}`)
+  assert(
+    fs.existsSync(htmlPath),
+    `Generated article page is missing: ${relativePath}`
+  )
   if (!fs.existsSync(htmlPath)) continue
 
   const html = read(htmlPath)
 
-  assert(/<title>[^<]+<\/title>/i.test(html), `${relativePath}: title is missing`)
   assert(
-    /<meta[^>]+name=["']description["'][^>]+content=["'][^"']+["']/i.test(html) ||
-      /<meta[^>]+content=["'][^"']+["'][^>]+name=["']description["']/i.test(html),
+    /<title>[^<]+<\/title>/i.test(html),
+    `${relativePath}: title is missing`
+  )
+  assert(
+    /<meta[^>]+name=["']description["'][^>]+content=["'][^"']+["']/i.test(
+      html
+    ) ||
+      /<meta[^>]+content=["'][^"']+["'][^>]+name=["']description["']/i.test(
+        html
+      ),
     `${relativePath}: meta description is missing`
   )
 
-  const canonicalMatch = html.match(
-    /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i
-  ) ||
+  const canonicalMatch =
+    html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i) ||
     html.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']canonical["']/i)
 
   assert(Boolean(canonicalMatch), `${relativePath}: canonical URL is missing`)
   if (canonicalMatch) {
-    assert(!canonicals.has(canonicalMatch[1]), `${relativePath}: duplicate canonical URL`)
+    assert(
+      !canonicals.has(canonicalMatch[1]),
+      `${relativePath}: duplicate canonical URL`
+    )
     canonicals.add(canonicalMatch[1])
   }
 
@@ -76,9 +91,10 @@ for (const filename of articleFiles) {
     `${relativePath}: JSON-LD is missing`
   )
 
-  const modifiedMatch = html.match(
-    /<meta[^>]+property=["']article:modified_time["'][^>]+content=["']([^"']+)["']/i
-  ) ||
+  const modifiedMatch =
+    html.match(
+      /<meta[^>]+property=["']article:modified_time["'][^>]+content=["']([^"']+)["']/i
+    ) ||
     html.match(
       /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:modified_time["']/i
     )
@@ -99,5 +115,7 @@ if (modifiedTimes.length > 1) {
 }
 
 if (!process.exitCode) {
-  console.log(`Verified ${articleFiles.length} generated article pages successfully.`)
+  console.log(
+    `Verified ${articleFiles.length} generated article pages successfully.`
+  )
 }
